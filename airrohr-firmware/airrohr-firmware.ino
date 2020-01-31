@@ -100,7 +100,7 @@
  *
  ************************************************************************/
 // increment on change
-#define SOFTWARE_VERSION "NAMF-2019-018I"
+#define SOFTWARE_VERSION "NAMF-2019-019"
 #define SPOOF_SOFTWARE_VERSION "NRZ-2018-123B"
 
 
