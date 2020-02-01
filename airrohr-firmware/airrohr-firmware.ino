@@ -1376,6 +1376,8 @@ void webserver_config_json_save() {
 		}
 		
 	}else {
+		page_content += F("<a href=\"/config.json\" target=\"_blank\">Sensor config in JSON</a></br></br>");
+		
 		page_content += F("<form method='POST' action='/configSave.json' style='width:100%;'>");
 		page_content += F("<textarea name=\"json\" rows=\"10\" cols=\"120\"></textarea></br>");
 		page_content += form_submit(FPSTR(INTL_SAVE_AND_RESTART));
