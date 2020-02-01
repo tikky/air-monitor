@@ -1,5 +1,4 @@
 #include <Arduino.h>
-#define INTL_PL
 
 /************************************************************************
  *                                                                      *
@@ -965,11 +964,9 @@ void readConfig() {
 	}
 }
 
-/*****************************************************************
- * write config to spiffs                                        *
- *****************************************************************/
-void writeConfig() {
-	using namespace cfg;
+//Create string with config as JSON
+String getConfigString() {
+		using namespace cfg;
 	String json_string = "{";
 	debug_out(F("saving config..."), DEBUG_MIN_INFO, 1);
 
@@ -1037,6 +1034,18 @@ void writeConfig() {
 	json_string.remove(json_string.length() - 1);
 	json_string += "}";
 
+	return json_string;
+
+}
+
+/*****************************************************************
+ * write config to spiffs                                        *
+ *****************************************************************/
+void writeConfig(){
+	String json_string  = getConfigString();
+	writeConfigRaw(json_string);
+}
+void writeConfigRaw(String json_string) {
 	debug_out(json_string, DEBUG_MIN_INFO, 1);
 	File configFile = SPIFFS.open("/config.json", "w");
 	if (configFile) {
@@ -1337,6 +1346,45 @@ void webserver_root() {
 
 static int constexpr constexprstrlen(const char* str) {
 	return *str ? 1 + constexprstrlen(str + 1) : 0;
+}
+
+//Webserver - current config as JSON (txt) to save
+void webserver_config_json() {
+
+	if (!webserver_request_auth())
+	{ return; }
+	String page_content = getConfigString();
+	server.send(200, FPSTR(TXT_CONTENT_TYPE_TEXT_PLAIN), page_content);
+}
+
+//Webserver - current config as JSON (txt) to save
+void webserver_config_json_save() {
+
+	if (!webserver_request_auth())
+	{ return; }
+	String page_content = make_header(FPSTR(INTL_CONFIGURATION));
+	if (server.method() == HTTP_POST) {
+		if (server.hasArg("json")) {
+			writeConfigRaw(server.arg("json"));
+			server.send(200, FPSTR(TXT_CONTENT_TYPE_TEXT_HTML), page_content);
+			delay(5000);
+			Serial.println("RESET");
+			ESP.restart();
+		}
+		else {
+			server.sendHeader(F("Location"), F("/"));
+		}
+		
+	}else {
+		page_content += F("<form method='POST' action='/configSave.json' style='width:100%;'>");
+		page_content += F("<textarea name=\"json\" rows=\"10\" cols=\"120\"></textarea></br>");
+		page_content += form_submit(FPSTR(INTL_SAVE_AND_RESTART));
+		page_content += F("</form>");
+		page_content += make_footer();
+
+
+	}
+	server.send(200, FPSTR(TXT_CONTENT_TYPE_TEXT_HTML), page_content);
 }
 
 /*****************************************************************
@@ -2003,6 +2051,8 @@ void webserver_not_found() {
 void setup_webserver() {
 	server.on("/", webserver_root);
 	server.on("/config", webserver_config);
+	server.on("/config.json", HTTP_GET, webserver_config_json);
+	server.on("/configSave.json", webserver_config_json_save);
 	server.on("/wifi", webserver_wifi);
 	server.on("/values", webserver_values);
 	server.on("/generate_204", webserver_config);
@@ -3839,7 +3889,7 @@ static bool acquireNetworkTime() {
  * The Setup                                                     *
  *****************************************************************/
 void setup() {
-	Serial.begin(9600);					// Output to Serial at 9600 baud
+	Serial.begin(115200);					// Output to Serial at 9600 baud
 	Wire.begin(I2C_PIN_SDA, I2C_PIN_SCL);
 
 	esp_chipid = String(ESP.getChipId());
