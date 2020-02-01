@@ -1354,9 +1354,11 @@ void webserver_config_json() {
 	if (!webserver_request_auth())
 	{ return; }
 	String page_content = getConfigString();
-	String cookie = String(F("NAMF_CONFIG="));
-    cookie += page_content;
-    server.sendHeader(F("Set-Cookie"), cookie);
+    if (page_content.length() < 4000) {
+        String cookie = String(F("NAMF_CONFIG="));
+        cookie += page_content;
+        server.sendHeader(F("Set-Cookie"), cookie);
+    }
 	server.send(200, FPSTR(TXT_CONTENT_TYPE_TEXT_PLAIN), page_content);
 }
 
