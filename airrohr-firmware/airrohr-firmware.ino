@@ -1354,11 +1354,6 @@ void webserver_config_json() {
 	if (!webserver_request_auth())
 	{ return; }
 	String page_content = getConfigString();
-    if (page_content.length() < 4000) {
-        String cookie = String(F("NAMF_CONFIG="));
-        cookie += page_content;
-        server.sendHeader(F("Set-Cookie"), cookie);
-    }
 	server.send(200, FPSTR(TXT_CONTENT_TYPE_TEXT_PLAIN), page_content);
 }
 
@@ -1387,20 +1382,6 @@ void webserver_config_json_save() {
         page_content += F("<textarea id=\"json\" name=\"json\" rows=\"10\" cols=\"120\"></textarea></br>");
         page_content += form_submit(FPSTR(INTL_SAVE_AND_RESTART));
         page_content += F("</form>");
-        page_content += F("<script type=\"text/javascript\">\n"
-                          "\n"
-                          "  // Original JavaScript code by Chirp Internet: www.chirp.com.au\n"
-                          "  // Please acknowledge use of this code by including this header.\n"
-                          "\n"
-                          "  function getCookie(name)\n"
-                          "  {\n"
-                          "    var re = new RegExp(name + \"=([^;]+)\");\n"
-                          "    var value = re.exec(document.cookie);\n"
-                          "    return (value != null) ? unescape(value[1]) : null;\n"
-                          "  }\n"
-                          "\n"
-                          " if(json = getCookie(\"NAMF_CONFIG\")) document.json_form.json.value = json;"
-                          "</script>");
 		page_content += make_footer();
 
 
