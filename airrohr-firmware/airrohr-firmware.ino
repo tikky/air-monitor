@@ -1408,6 +1408,45 @@ void webserver_config_json_save() {
 	server.send(200, FPSTR(TXT_CONTENT_TYPE_TEXT_HTML), page_content);
 }
 
+//Webserver - force update with custom URL
+void webserver_config_force_update() {
+
+    if (!webserver_request_auth())
+    { return; }
+    String page_content = make_header(FPSTR(INTL_CONFIGURATION));
+    if (server.method() == HTTP_POST) {
+        if (server.hasArg("host") && server.hasArg("path") && server.hasArg("port")) {
+            autoUpdate(server.arg("host"), server.arg("port"), server.arg("path"));
+            server.send(200, FPSTR(TXT_CONTENT_TYPE_TEXT_HTML), page_content);
+            delay(5000);
+            ESP.restart();
+        }
+        else {
+            server.sendHeader(F("Location"), F("/"));
+        }
+
+    }else {
+
+        page_content += F("<h2>Force update</h2>");
+        page_content += F("<form method='POST' action='/forceUpdate' style='width:100%;'>");
+        page_content += F("HOST:<input name=\"host\" value=");
+        page_content += UPDATE_HOST;
+        page_content += ("></br>");
+        page_content += F("PORT:<input name=\"port\" value=");
+        page_content += UPDATE_PORT;
+        page_content += ("></br>");
+        page_content += F("PATH:<input name=\"path\" value=");
+        page_content += UPDATE_URL;
+        page_content += ("></br>");
+        page_content += form_submit(FPSTR(INTL_SAVE_AND_RESTART));
+        page_content += F("</form>");
+        page_content += make_footer();
+
+
+    }
+    server.send(200, FPSTR(TXT_CONTENT_TYPE_TEXT_HTML), page_content);
+}
+
 /*****************************************************************
  * Webserver config: show config page                            *
  *****************************************************************/
@@ -2074,7 +2113,8 @@ void setup_webserver() {
 	server.on("/config", webserver_config);
 	server.on("/config.json", HTTP_GET, webserver_config_json);
 	server.on("/configSave.json", webserver_config_json_save);
-	server.on("/wifi", webserver_wifi);
+    server.on("/forceUpdate", webserver_config_force_update);
+    server.on("/wifi", webserver_wifi);
 	server.on("/values", webserver_values);
 	server.on("/generate_204", webserver_config);
 	server.on("/fwlink", webserver_config);
@@ -3335,18 +3375,19 @@ String sensorGPS() {
 /*****************************************************************
  * AutoUpdate                                                    *
  *****************************************************************/
-static void autoUpdate() {
+static void autoUpdate(const String host, const String port, const String url) {
 	if (cfg::auto_update) {
 		debug_out(F("Starting OTA update ..."), DEBUG_MIN_INFO, 1);
 		debug_out(F("NodeMCU firmware : "), DEBUG_MIN_INFO, 0);
 		debug_out(SOFTWARE_VERSION, DEBUG_MIN_INFO, 1);
-		debug_out(UPDATE_HOST, DEBUG_MED_INFO, 1);
-		debug_out(UPDATE_URL, DEBUG_MED_INFO, 1);
+		debug_out(host, DEBUG_MED_INFO, 1);
+		debug_out(port, DEBUG_MED_INFO, 1);
+		debug_out(url, DEBUG_MED_INFO, 1);
 
 		const String SDS_version = cfg::sds_read ? SDS_version_date() : "";
 		display_debug(F("Looking for"), F("OTA update"));
 		last_update_attempt = millis();
-		const HTTPUpdateResult ret = ESPhttpUpdate.update(UPDATE_HOST, UPDATE_PORT, UPDATE_URL,
+		const HTTPUpdateResult ret = ESPhttpUpdate.update(host, (unsigned int)port.toInt(), url,
 									 SOFTWARE_VERSION + String(" ") + esp_chipid + String(" ") + SDS_version + String(" ") +
 									 String(cfg::current_lang) + String(" ") + String(INTL_LANG) + String(" ") +
 									 String(cfg::use_beta ? "BETA" : ""));
@@ -3925,7 +3966,7 @@ void setup() {
 	got_ntp = acquireNetworkTime();
 	debug_out(F("\nNTP time "), DEBUG_MIN_INFO, 0);
 	debug_out(String(got_ntp?"":"not ")+F("received"), DEBUG_MIN_INFO, 1);
-	autoUpdate();
+	autoUpdate(String(UPDATE_HOST),String(UPDATE_PORT), String(UPDATE_URL));
 	create_basic_auth_strings();
 	serialSDS.begin(9600);
 	debug_out(F("\nChipId: "), DEBUG_MIN_INFO, 0);
@@ -4286,7 +4327,7 @@ void loop() {
 		checkForceRestart();
 
 		if (msSince(last_update_attempt) > PAUSE_BETWEEN_UPDATE_ATTEMPTS_MS) {
-			autoUpdate();
+			autoUpdate(String(UPDATE_HOST), String(UPDATE_PORT), String(UPDATE_URL));
 		}
 
 		sending_time = (4 * sending_time + sum_send_time) / 5;
