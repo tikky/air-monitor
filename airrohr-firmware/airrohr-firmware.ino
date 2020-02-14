@@ -965,7 +965,7 @@ void readConfig() {
 }
 
 //Create string with config as JSON
-String getConfigString() {
+String getConfigString(bool maskPwd = false) {
 		using namespace cfg;
 	String json_string = "{";
 	debug_out(F("saving config..."), DEBUG_MIN_INFO, 1);
@@ -976,7 +976,13 @@ String getConfigString() {
 	copyToJSON_String(current_lang);
 	copyToJSON_String(SOFTWARE_VERSION);
 	copyToJSON_String(wlanssid);
-	copyToJSON_String(wlanpwd);
+	//mask WiFi password?
+	if (maskPwd) {	
+ 		json_string += Var2Json("wlanpwd",String("***"));
+	} else {
+		copyToJSON_String(wlanpwd);
+	}
+	
 	copyToJSON_String(www_username);
 	copyToJSON_String(www_password);
 	copyToJSON_String(fs_ssid);
@@ -1036,6 +1042,12 @@ String getConfigString() {
 
 	return json_string;
 
+}
+/***************************************************************
+ * wrapper to differentate functions with masked sensitive data
+ **************************************************************/
+String getMaskedConfigString() {
+	return getConfigString(true);
 }
 
 /*****************************************************************
@@ -1353,7 +1365,7 @@ void webserver_config_json() {
 
 	if (!webserver_request_auth())
 	{ return; }
-	String page_content = getConfigString();
+	String page_content = getMaskedConfigString();
 	server.send(200, FPSTR(TXT_CONTENT_TYPE_TEXT_PLAIN), page_content);
 }
 
