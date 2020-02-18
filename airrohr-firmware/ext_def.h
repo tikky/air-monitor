@@ -15,9 +15,9 @@
 #define FS_PWD ""
 
 // Wohin gehen die Daten?
-#define SEND2DUSTI 1
+#define SEND2DUSTI 0
 #define SSL_DUSTI 0
-#define SEND2MADAVI 1
+#define SEND2MADAVI 0
 #define SSL_MADAVI 0
 #define SEND2SENSEMAP 0
 #define SEND2FSAPP 0
@@ -25,7 +25,7 @@
 #define SEND2INFLUX 0
 #define SEND2LORA 0
 #define SEND2CSV 0
-#define SEND2CUSTOM 0
+#define SEND2CUSTOM 1
 
 // NTP Server
 #define NTP_SERVER "0.europe.pool.ntp.org"
@@ -37,8 +37,8 @@
 // IMPORTANT: NO MORE CHANGES TO VARIABLE NAMES NEEDED FOR EXTERNAL APIS
 
 // Definition eigene API
-#define HOST_CUSTOM "192.168.234.1"
-#define URL_CUSTOM "/data.php"
+#define HOST_CUSTOM "smogapi.signati.pl"
+#define URL_CUSTOM "/"
 #define PORT_CUSTOM 80
 #define USER_CUSTOM ""
 #define PWD_CUSTOM ""
@@ -133,7 +133,7 @@
 #define GPS_API_PIN 9
 
 // automatic firmware updates
-#define AUTO_UPDATE 1
+#define AUTO_UPDATE 0
 
 // use beta firmware
 #define USE_BETA 0

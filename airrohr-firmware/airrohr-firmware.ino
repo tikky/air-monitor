@@ -166,13 +166,13 @@
  ******************************************************************/
 const unsigned long SAMPLETIME_MS = 30000;
 const unsigned long SAMPLETIME_SDS_MS = 1000;
-const unsigned long WARMUPTIME_SDS_MS = 15000;
+const unsigned long WARMUPTIME_SDS_MS = 30000;
 const unsigned long READINGTIME_SDS_MS = 5000;
 const unsigned long SAMPLETIME_GPS_MS = 50;
 const unsigned long DISPLAY_UPDATE_INTERVAL_MS = 5000;
 const unsigned long ONE_DAY_IN_MS = 24 * 60 * 60 * 1000;
 const unsigned long PAUSE_BETWEEN_UPDATE_ATTEMPTS_MS = ONE_DAY_IN_MS;        // check for firmware updates once a day
-const unsigned long DURATION_BEFORE_FORCED_RESTART_MS = ONE_DAY_IN_MS * 28;  // force a reboot every ~4 weeks
+const unsigned long DURATION_BEFORE_FORCED_RESTART_MS = ONE_DAY_IN_MS * 1;  // force a reboot every ~1 day
 
 /******************************************************************
  * The variables inside the cfg namespace are persistent          *
@@ -245,7 +245,7 @@ namespace cfg {
 	char url_influx[100] = URL_INFLUX;
 
 	unsigned long time_for_wifi_config = 600000;
-	unsigned long sending_intervall_ms = 145000;
+	unsigned long sending_intervall_ms = 360000;
 
 	void initNonTrivials(const char* id) {
 		strcpy(cfg::current_lang, CURRENT_LANG);
@@ -274,8 +274,8 @@ namespace cfg {
 #define URL_FSAPP "/data.php"
 #define PORT_FSAPP 80
 
-#define UPDATE_HOST "fw.air.nettigo.pl"
-#define UPDATE_URL "/update/index.php"
+#define UPDATE_HOST "smogapi.signati.pl"
+#define UPDATE_URL "/update/latest.bin"
 #define UPDATE_PORT 80
 
 #define JSON_BUFFER_SIZE 2000
@@ -3977,7 +3977,7 @@ void setup() {
 	logEnabledAPIs();
 	logEnabledDisplays();
 
-	String server_name = F("NAM-");
+	String server_name = F("STERIO-");
 	server_name += esp_chipid;
 	if (MDNS.begin(server_name.c_str())) {
 		MDNS.addService("http", "tcp", 80);
