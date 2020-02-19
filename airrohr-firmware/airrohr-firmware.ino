@@ -250,7 +250,7 @@ namespace cfg {
 	void initNonTrivials(const char* id) {
 		strcpy(cfg::current_lang, CURRENT_LANG);
 		if (fs_ssid[0] == '\0') {
-			strcpy(fs_ssid, "NAM-");
+			strcpy(fs_ssid, "STERIO-");
 			strcat(fs_ssid, id);
 		}
 	}
