@@ -69,7 +69,7 @@ const char WEB_PAGE_FOOTER[] PROGMEM = "<br/><br/><a href='/' style='display:inl
 </div></body></html>\r\n";
 
 const char WEB_ROOT_PAGE_CONTENT[] PROGMEM = "<a href='/values'>{t}</a><br/>\
-<a href='https://maps.luftdaten.info/' target='_blank'>{map}</a><br/>\
+<a href='http://sterio.pl/' target='_blank'>{map}</a><br/>\
 <a href='/config'>{conf}</a><br/>\
 <a href='/removeConfig'>{conf_delete}</a><br/>\
 <a href='/reset'>{restart}</a><br/>\
